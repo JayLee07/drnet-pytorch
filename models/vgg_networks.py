@@ -10,12 +10,26 @@ class VGG_Unet_Encoder(nn.Module):
     def __init__(self, args):
         super(VGG_Unet_Encoder, self).__init__()
         self.args = args
-        self.h1     = nn.Sequential(VGG_layer(args.ch_in, args.ngf),   VGG_layer(args.ngf, args.ngf))
-        self.h2     = nn.Sequential(VGG_layer(args.ngf,   args.ngf*2), VGG_layer(args.ngf*2, args.ngf*2))
-        self.h3     = nn.Sequential(VGG_layer(args.ngf*2, args.ngf*4), VGG_layer(args.ngf*4, args.ngf*4), VGG_layer(args.ngf*4, args.ngf*4))
-        self.h4     = nn.Sequential(VGG_layer(args.ngf*4, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8))
-        self.h4_0   = nn.Sequential(VGG_layer(args.ngf*8, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8))
-        self.embed  = nn.Sequential(nn.Conv2d(args.ngf*8, args.content_dim, kernel_size=4, stride=1, padding=0), nn.BatchNorm2d(args.ngf*8), nn.Tanh())
+        self.h1     = nn.Sequential(VGG_layer(args.ch_in, args.ngf),
+                                    VGG_layer(args.ngf, args.ngf))
+        self.h2     = nn.Sequential(VGG_layer(args.ngf,   args.ngf*2),
+                                    VGG_layer(args.ngf*2, args.ngf*2))
+        self.h3     = nn.Sequential(VGG_layer(args.ngf*2, args.ngf*4),
+                                    VGG_layer(args.ngf*4, args.ngf*4),
+                                    VGG_layer(args.ngf*4, args.ngf*4))
+        self.h4     = nn.Sequential(VGG_layer(args.ngf*4, args.ngf*8),
+                                    VGG_layer(args.ngf*8, args.ngf*8),
+                                    VGG_layer(args.ngf*8, args.ngf*8))
+        self.h4_0   = nn.Sequential(VGG_layer(args.ngf*8, args.ngf*8),
+                                    VGG_layer(args.ngf*8, args.ngf*8),
+                                    VGG_layer(args.ngf*8, args.ngf*8))
+        self.embed  = nn.Sequential(nn.Conv2d(in_channels = args.ngf*8,
+                                              out_channels = args.content_dim,
+                                              kernel_size=4,
+                                              stride=1,
+                                              padding=0),
+                                    nn.BatchNorm2d(args.ngf*8),
+                                    nn.Tanh())
         self.pool   = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
 
     def forward(self, x):
@@ -37,12 +51,31 @@ class VGG_Unet_Decoder(nn.Module):
     def __init__(self, args):
         super(VGG_Unet_Decoder, self).__init__()
         self.args = args
-        self.h1   = nn.Sequential(nn.ConvTranspose2d(in_channels = args.content_dim + args.pose_dim, out_channels=args.ngf*8, kernel_size=4, stride=1, padding=0), nn.BatchNorm2d(args.ngf*8), nn.LeakyReLU(0.2, inplace=True))
-        self.h2_0 = nn.Sequential(VGG_layer(args.ngf*8*2, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8))
-        self.h2   = nn.Sequential(VGG_layer(args.ngf*8*2, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*8), VGG_layer(args.ngf*8, args.ngf*4))
-        self.h3   = nn.Sequential(VGG_layer(args.ngf*4*2, args.ngf*4), VGG_layer(args.ngf*4, args.ngf*4), VGG_layer(args.ngf*4, args.ngf*2))
-        self.h4   = nn.Sequential(VGG_layer(args.ngf*2*2, args.ngf*2), VGG_layer(args.ngf*2, args.ngf))
-        self.h5   = nn.Sequential(VGG_layer(args.ngf*2, args.ngf), nn.ConvTranspose2d(in_channels = args.ngf, out_channels = args.ch_in, kernel_size=3, stride=1, padding=1), nn.Sigmoid())
+        self.h1   = nn.Sequential(nn.ConvTranspose2d(in_channels = args.content_dim + args.pose_dim,
+                                                     out_channels=args.ngf*8,
+                                                     kernel_size=4,
+                                                     stride=1,
+                                                     padding=0),
+                                  nn.BatchNorm2d(args.ngf*8),
+                                  nn.LeakyReLU(0.2, inplace=True))
+        self.h2_0 = nn.Sequential(VGG_layer(args.ngf*8*2, args.ngf*8),
+                                  VGG_layer(args.ngf*8, args.ngf*8),
+                                  VGG_layer(args.ngf*8, args.ngf*8))
+        self.h2   = nn.Sequential(VGG_layer(args.ngf*8*2, args.ngf*8),
+                                  VGG_layer(args.ngf*8, args.ngf*8),
+                                  VGG_layer(args.ngf*8, args.ngf*4))
+        self.h3   = nn.Sequential(VGG_layer(args.ngf*4*2, args.ngf*4),
+                                  VGG_layer(args.ngf*4, args.ngf*4),
+                                  VGG_layer(args.ngf*4, args.ngf*2))
+        self.h4   = nn.Sequential(VGG_layer(args.ngf*2*2, args.ngf*2),
+                                  VGG_layer(args.ngf*2, args.ngf))
+        self.h5   = nn.Sequential(VGG_layer(args.ngf*2, args.ngf),
+                                  nn.ConvTranspose2d(in_channels = args.ngf,
+                                                     out_channels = args.ch_in,
+                                                     kernel_size=3,
+                                                     stride=1,
+                                                     padding=1),
+                                  nn.Sigmoid())
         self.up   = nn.UpsamplingNearest2d(scale_factor=2)
 
     def forward(self, x):
