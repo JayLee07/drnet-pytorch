@@ -1,16 +1,8 @@
 import torch
 import torch.nn as nn
 import math
+from network_blocks import VGG_layer
 
-class VGG_layer(nn.Module):
-    
-    def __init__(self, ch_in, ch_out):
-        layer = []
-        layer += [nn.Conv2d(in_channels = ch_in, out_channels = ch_out, kernel_size=3, stride=1, padding=1), nn.BatchNorm2d(ch_out), nn.LeakyReLU(0.2, True)]
-        self.layer = nn.Sequential(*layer)
-    
-    def forward(self, x):
-        return self.layer(x)
 
 
 class VGG_Unet_Encoder(nn.Module):
@@ -59,15 +51,15 @@ class VGG_Unet_Decoder(nn.Module):
         
         if self.args.width == 128:
             x = self.h1(torch.cat([content, pose], 1))
-            x = self.h2_0(self.up(torch.cat([x, skip[4], 1)))
-            x = self.h2(self.up(torch.cat([x, skip[3], 1)))
-            x = self.h3(self.up(torch.cat([x, skip[2], 1)))
-            x = self.h4(self.up(torch.cat([x, skip[1], 1)))
-            output = self.h5(self.up(torch.cat([x, skip[0], 1)))
+            x = self.h2_0(self.up(torch.cat([x, skip[4]], 1)))
+            x = self.h2(self.up(torch.cat([x, skip[3]], 1)))
+            x = self.h3(self.up(torch.cat([x, skip[2]], 1)))
+            x = self.h4(self.up(torch.cat([x, skip[1]], 1)))
+            output = self.h5(self.up(torch.cat([x, skip[0]], 1)))
         elif self.args.width == 64:
             x = self.h1(torch.cat([content, pose], 1))
-            x = self.h2(self.up(torch.cat([x, skip[3], 1)))
-            x = self.h3(self.up(torch.cat([x, skip[2], 1)))
-            x = self.h4(self.up(torch.cat([x, skip[1], 1)))
-            output = self.h5(self.up(torch.cat([x, skip[0], 1)))
+            x = self.h2(self.up(torch.cat([x, skip[3]], 1)))
+            x = self.h3(self.up(torch.cat([x, skip[2]], 1)))
+            x = self.h4(self.up(torch.cat([x, skip[1]], 1)))
+            output = self.h5(self.up(torch.cat([x, skip[0]], 1)))
         return output
